@@ -139,44 +139,62 @@ async function albumSearch(album_query){
     CLIENT = await authorize(null);
   }
   
-  let search_response = 
-    await fetch(`https://api.spotify.com/v1/search?query=${album_query}&type=album`, 
+  // First assume query is an spotify id
+  let spotify_album = 
+    await fetch(`https://api.spotify.com/v1/albums/${album_query}`, 
       { 
         method: 'GET',
         headers: {
           'Authorization': `Bearer ${CLIENT.access_token}`}
       });
+  
+  let album = null; // Default to no album found
+  const album_response = await spotify_album.json();
+  
+  // If it wasn't an id, we get the first result of a spotify album search instead
+  if(album_response.error){ 
+    let search_response = 
+      await fetch(`https://api.spotify.com/v1/search?query=${album_query}&type=album`, 
+        { 
+          method: 'GET',
+          headers: {
+            'Authorization': `Bearer ${CLIENT.access_token}`}
+        });
 
-  let search_results = await search_response.json();
+    let search_results = await search_response.json();
 
-  if(search_results.error){ return null; }
+    if(!search_results.error){ 
+      const spotify_albums = search_results.albums;
+      let album_id = null;
 
-  const spotify_albums = search_results.albums;
+      // Take id of first album with 6 or more tracks
+      for(let i = 0; i <= spotify_albums.items.length; i++){
+        if(spotify_albums.items[i].total_tracks > 5){
+          album_id = spotify_albums.items[i].id;
+          break;
+        }
+      }
 
-  for(let i = 0; i <= spotify_albums.items.length; i++){
-    // If no albums, or all albums were too short, assume the query was an album id
-    if(i == spotify_albums.items.length){
-      album_id = album_query;
-      break;
-    }    
-
-    // Take first album with 6 or more tracks
-    if(spotify_albums.items[i].total_tracks > 5){
-      album_id = spotify_albums.items[i].id; 
-      break;
+      if(album_id){
+        // Spotify's search api gives basic info for a specific album
+        // we need to do an additional api request for the full album info
+        spotify_album = 
+        await fetch(`https://api.spotify.com/v1/albums/${album_id}`, 
+          { 
+            method: 'GET',
+            headers: {
+              'Authorization': `Bearer ${CLIENT.access_token}`}
+          });
+        
+        let response = await spotify_album.json();
+        if(!response.error){ album = response; }
+      }
     }
+  }else{
+    album = album_response;
   }
 
-  const spotify_album = 
-    await fetch(`https://api.spotify.com/v1/albums/${album_id}`, 
-      { 
-        method: 'GET',
-        headers: {
-          'Authorization': `Bearer ${CLIENT.access_token}`}
-      });
-
-  const album = await spotify_album.json(); 
-  if(album.error){ return null; }
+  if(!album){ return null; } // No album was found with query, return null
 
   const artists = await getArtists(album.artists);
   const track_list = await getTracklist(album.tracks);

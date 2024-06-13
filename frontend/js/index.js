@@ -26,10 +26,15 @@ async function updateCurrentUser(){
 // Website graphic update functions
 async function updateLayout(){
   sendEvent(updateJS, {script: docId("content").value});
+  
+  let icon = docId("icon");
+
   if(CURRENT_USER.profile_image){
-    docId("icon").innerHTML = `<img src="${CURRENT_USER.profile_image}" alt="icon">`;
+    icon.innerHTML = `<img src="${CURRENT_USER.profile_image}" alt="icon">`;
+  }else if(CURRENT_USER.profile_name){
+    icon.innerHTML = CURRENT_USER.profile_name[0].toUpperCase();
   }else{
-    docId("icon").innerHTML = CURRENT_USER.profile_name[0].toUpperCase();
+    icon.innerHTML = "Local";
   }
 
   if(CURRENT_USER.active_token){ sendEvent(playerEvent, {action: "start"}); }
