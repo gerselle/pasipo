@@ -9,16 +9,18 @@ dotenv.config();
 const fs = require('fs');
 
 // Custom modules for API calls
-const spotify = require("./backend/api/spotify.js");
-const postgres = require("./backend/api/postgres.js");
-const typesense = require("./backend/api/typesense.js");
+const spotify = require("./spotify.js");
+const postgres = require("./postgres.js");
+const typesense = require("./typesense.js");
 
 // Custom modules for user authentication/sessions
 const session = require("express-session");
 const sessionStore = require("connect-pg-simple")(session);
 
+const CLIENT_DIR = path.join(__dirname, "../client");
+
 const app = express();
-app.use(express.static(path.join(__dirname, 'frontend')));
+app.use(express.static(CLIENT_DIR));
 app.use(cors());
 app.use(express.json());
 
@@ -235,7 +237,7 @@ app.get("/callback", async function(req, res){
       if(login && !login.error){ req.session.user = login; }
       break;
     case "signup":
-      await postgres.signupToken(user_info, token);
+      await postgres.signupToken(user_info);
       break;
   }
 
@@ -262,6 +264,7 @@ app.get("/loadtrack/:service/:album_id/:track_pos", async function(req, res){
       case "spotify": spotify.loadTrack(req.params.album_id, req.params.track_pos, user_token); break;
     }
   }
+  res.end();
 });
 
 app.post("/access", async function(req, res) {
@@ -296,7 +299,6 @@ app.get("/search/:query/:field", async function(req, res){
   const query = req.params.query;
   const field = req.params.field;
   const check_ts = await typesense.query(query, field);
-
   if(check_ts){
     res.send(check_ts);
   }else{
@@ -324,21 +326,22 @@ app.get("/*", (req, res) => {
   const parts = req.url.split("/");
   switch(parts[1]){
     case "templates":
-      res.sendFile(__dirname + "/frontend/templates/404.html");
+      res.sendFile(path.join(CLIENT_DIR, "templates/404.html"));
       break;
     case "js":
-      res.sendFile(__dirname + "/frontend/js/404.js"); 
+      res.sendFile(path.join(CLIENT_DIR, "js/404.js"));
       break;
-    case "css": 
-      res.sendFile(__dirname + "/frontend/css/404.css");
+    case "css":
+      res.sendFile(path.join(CLIENT_DIR, "css/404.css"));
       break;
     default:
-      let index = fs.readFileSync(path.join(__dirname, "/frontend/index.html"), 'utf8');
-      index = index.replace('{{SERVER_ADDRESS}}', process.env.server_address);
-      index = index.replace('{{TS_KEY}}', process.env.tsclientkey);
+      let index = fs.readFileSync(path.join(CLIENT_DIR, "index.html"), 'utf8');
+      index = index.replace('{{SERVER_ADDRESS}}', process.env.SERVER_ADDRESS);
+      index = index.replace('{{TS_KEY}}', process.env.TYPESENSE_CLIENT_KEY);
+      index = index.replace('{{TS_URL}}', process.env.TYPESENSE_PUBLIC_URL);
       res.send(index);
   }
 });
 
-const port = process.env.server_port;
-app.listen(port, "0.0.0.0", () => console.log(`Listening at address ${process.env.server_ip} on port ${port}.`));
+const port = process.env.SERVER_PORT;
+app.listen(port, "0.0.0.0", () => console.log(`Listening at http://${process.env.SERVER_IP}:${port}.`));

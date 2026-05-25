@@ -409,8 +409,8 @@ async function presearchAlbum(){
     'drop_tokens_threshold': 0
   }
 
-  let query_result = await TS_CLIENT.collections('albums').documents().search(query).catch(e => {});            
-  
+  let query_result = await TS_CLIENT.collections('albums').documents().search(query).catch();
+
   if(!query_result) return;
   PRESEARCH.albums = {};
   let results = "";

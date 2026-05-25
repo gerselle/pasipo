@@ -283,7 +283,7 @@
   height: 100%;
   aspect-ratio: 5/1;
   background-color: var(--primary-300);
-  mask-image: url(/images/rating.svg);
+  mask-image: url(/icons/rating.svg);
 }
 
 .rating .add{
@@ -297,7 +297,7 @@
   height: 100%;
   aspect-ratio: 5/1;
   background-color: goldenrod;
-  mask-image: url(/images/rating.svg);
+  mask-image: url(/icons/rating.svg);
 }
 
 .album .tracklist{
@@ -348,7 +348,7 @@
   background-color: black;
   mask-size: contain;
   filter: var(--filter);
-  mask-image: url("/images/star.svg");
+  mask-image: url("/icons/star.svg");
 }
 
 .tracklist .starred{

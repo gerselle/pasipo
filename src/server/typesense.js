@@ -7,11 +7,11 @@ let CLIENT;
 async function initialize(){
   CLIENT = new typesense.Client({
     'nodes': [{
-      'host': process.env.tshost, 
-      'port': process.env.tsport,      
-      'protocol': 'http'  
+      'host': process.env.TYPESENSE_HOST,
+      'port': parseInt(process.env.TYPESENSE_PORT),
+      'protocol': 'http'
     }],
-    'apiKey': process.env.tsapikey,
+    'apiKey': process.env.TYPESENSE_API_KEY,
     'connectionTimeoutSeconds': 2
   });
 
@@ -29,11 +29,11 @@ async function initialize(){
   }
 
   // If collection exists, error will always occur, makes sure to always catch it
-  try{await CLIENT.collections().create(schema);}catch{}
+  try{await CLIENT.collections().create(schema);}catch(error){{}}
 }
 
 initialize()
-.then(console.log("Typesense server initialized correctly."))
+.then(() => {console.log("Typesense server initialized correctly.");})
 .catch((error) => {console.log(`Typesense server failed to initialize due to the following error:\n${error}`)});
 
 async function addAlbum(album, query){

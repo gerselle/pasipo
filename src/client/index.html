@@ -27,7 +27,8 @@
     <script>
       window.env = {
         SERVER_ADDRESS: '{{SERVER_ADDRESS}}',
-        TS_KEY: '{{TS_KEY}}'
+        TS_KEY: '{{TS_KEY}}',
+        TS_URL: '{{TS_URL}}'
       };
     </script>
 </head>
@@ -37,11 +38,11 @@
     
   <div class="layout" id="layout">
     <div class="no-select top-bar" id="top_bar">
-      <button type="button" id="menu"><img src="/images/menu.svg"></button>
+      <button type="button" id="menu"><img src="/icons/menu.svg"></button>
       <div class="search" id="search">
         <div class="row">
             <input type="text" id="search_bar" placeholder="Search for an album..." autocomplete="off">
-            <button id="search_button" type="button"><img src="/images/search.svg"></button>
+            <button id="search_button" type="button"><img src="/icons/search.svg"></button>
         </div>
         <ul id="search_results"></ul>
       </div>

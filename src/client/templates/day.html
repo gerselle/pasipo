@@ -1,25 +1,25 @@
 <div class="no-select options" id="options">
   <div class="navigation">    
-    <button onclick="moveDate(false)"> <img style="transform:rotate(180deg);" src="/images/arrow.svg"> </button>
+    <button onclick="moveDate(false)"> <img style="transform:rotate(180deg);" src="/icons/arrow.svg"> </button>
     <div class="date">
       <button id="date" onclick="toggleCalendar()"></button>
       <button id="album_delete" onpointerdown="sendAlbumDelete(this)">Delete</button>
     </div>
-    <button onclick="moveDate(true)"> <img src="/images/arrow.svg"> </button>
+    <button onclick="moveDate(true)"> <img src="/icons/arrow.svg"> </button>
   </div>
 
   <div class="calendar" id="calendar" style="display: none;">
     <div class="header">
       <div class="panel">
-        <img style="transform:rotate(180deg);" src="/images/arrow.svg" onclick="moveMonth(false)">
+        <img style="transform:rotate(180deg);" src="/icons/arrow.svg" onclick="moveMonth(false)">
         <div class="date">
             <div id="months"></div>
             <div id="years"></div>
         </div>
-        <img src="/images/arrow.svg" onclick="moveMonth(true)">
+        <img src="/icons/arrow.svg" onclick="moveMonth(true)">
       </div>
 
-      <button type="button" class="close" onclick="toggleCalendar()"><img src="/images/close.svg"></button>
+      <button type="button" class="close" onclick="toggleCalendar()"><img src="/icons/close.svg"></button>
   </div>
     <div class="dates" id="calendar_dates">
   </div>

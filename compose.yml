@@ -1,0 +1,45 @@
+services:
+  postgres:
+    image: postgres:16
+    container_name: postgres
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
+    ports:
+      - ${POSTGRES_PORT:-5432}:5432
+    volumes:
+      - ${POSTGRES_DATA:-postgres_data}:/var/lib/postgresql/data
+      - ${POSTGRES_INIT_SQL}:/docker-entrypoint-initdb.d/init.sql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+  typesense:
+    image: typesense/typesense:0.25.2
+    restart: on-failure
+    ports:
+      - ${TYPESENSE_PORT:-8108}:8108
+    volumes:
+      - ${TYPESENSE_DATA:-typesense_data}:/data
+    command: '--data-dir /data --api-key=${TYPESENSE_API_KEY} --enable-cors'
+    healthcheck:
+      test: ["CMD-SHELL", "grep -q '1FAC' /proc/net/tcp"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+  server:
+    build: .
+    ports:
+      - ${SERVER_PORT:-45426}:${SERVER_PORT:-45426}
+    env_file: .env
+    depends_on:
+      postgres:
+        condition: service_healthy
+      typesense:
+        condition: service_healthy
+
+volumes:
+  postgres_data:
+  typesense_data:

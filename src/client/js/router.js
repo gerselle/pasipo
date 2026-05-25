@@ -7,7 +7,7 @@ document.addEventListener("click", (e) => {
 
 const TS_CLIENT = new Typesense.Client({
   'nodes': [{
-    url: window.env.SERVER_ADDRESS + "/typesense"
+    url: window.env.TS_URL
   }],
   'apiKey': window.env.TS_KEY,
   'connectionTimeoutSeconds': 2

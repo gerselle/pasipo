@@ -69,26 +69,38 @@ This section will be updated in the future.
 
 ### Prerequisites
 
-On server computer that will host a copy of Papsipo, redirect to the root of the copy and type the following:
-* NodeJS, Express, and dotenv
-  ```sh
-  npm install npm@latest -g
-  npm init
-  npm install express
-  npm dotenv
-  ```
-
-* Postgres
-  ```
-  Todo
-  ```
-
+* Node.js (and npm)
+* Docker + Docker Compose — only for the recommended path below
+* A [Spotify developer app](https://developer.spotify.com/dashboard) (for the client ID/secret)
 
 ### Installation
 
+Copy `.env.example` to `.env` and fill in the secrets (Spotify, Postgres password, cookie secret, Typesense API key).
+
+#### Running with Docker (recommended for self-hosting)
+
+`compose.yml` starts Postgres, Typesense, and the Node app, seeding the schema from `db/init.sql` on first boot.
+
+```sh
+docker compose up -d --build
 ```
-  Todo
+
+#### Running standalone (bring your own Postgres and Typesense)
+
+Point `.env` at your existing services (`POSTGRES_HOST`, `POSTGRES_PORT`, `TYPESENSE_HOST`, `TYPESENSE_PORT`, and friends — see `.env.example`). Apply the schema once against your Postgres, then start the app:
+
+```sh
+psql "$YOUR_CONNECTION_STRING" -f db/init.sql
+npm install
+npm start
 ```
+
+### Project layout
+
+* `src/server/` — Express app and the Postgres/Spotify/Typesense wrappers (`npm start` runs `src/server/app.js`)
+* `src/client/` — static frontend (HTML/CSS/JS, templates, icons, player, vendored libs in `js/`)
+* `db/init.sql` — canonical schema, used by both install paths
+* `compose.yml` — Postgres + Typesense for the Docker path
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 

@@ -1,9 +1,9 @@
 const dotenv = require('dotenv');
 dotenv.config();
 
-const CLIENT_ID = process.env.spotify_client_id;
-const CLIENT_SECRET = process.env.spotify_client_secret;
-const REDIRECT_URI = `${process.env.server_address}/callback`;
+const CLIENT_ID = process.env.SPOTIFY_CLIENT_ID;
+const CLIENT_SECRET = process.env.SPOTIFY_CLIENT_SECRET;
+const REDIRECT_URI = `${process.env.SERVER_ADDRESS}/callback`;
 let CLIENT;
 
 authorize(null)
@@ -47,7 +47,6 @@ async function loadPlayer(device_id, user_token){
     
     return {success: "Spotify player loaded properly."}
   }catch(error){
-    console.log(error);
     return {error: "Failed to load Spotify player."};
   }
   

@@ -1,29 +1,16 @@
 const pg = require("pg");
-const fs = require("fs");
 const dotenv = require("dotenv");
 const crypto = require("crypto");
 const dayjs = require("dayjs");
 dotenv.config();
 
 const pool = new pg.Pool({
-    user: process.env.pguser,
-    host: process.env.pghost,
-    database: process.env.pgdatabase,
-    password: process.env.pgpassword,
-    port: process.env.pgport
+    user: process.env.POSTGRES_USER,
+    host: process.env.POSTGRES_HOST,
+    database: process.env.POSTGRES_DB,
+    password: process.env.POSTGRES_PASSWORD,
+    port: process.env.POSTGRES_PORT
 });
-
-// Update init.sql to use different names
-async function initialize(){
-    const client = await pool.connect();
-    const file = fs.readFileSync("backend/api/init.sql").toString();
-    await client.query(file);
-    client.release();
-}
-
-initialize()
-.then(console.log("Postgres database initialized correctly."))
-.catch((error) => {console.log(`Postgres database failed to initialize due to the following error:\n${error}`)}); 
 
 async function query(query, values){
     return new Promise(async (resolve, reject) => {
@@ -283,7 +270,7 @@ async function setToken(user_info){
 
         if(!user.tokens){ 
             user.tokens = {[service] : user_info.service_token} 
-        } else if(!user.token[`${service}`]){
+        } else if(!user.tokens[`${service}`]){
             user.tokens[`${service}`] = user_info.service_token; 
         }
 
