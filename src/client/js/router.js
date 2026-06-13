@@ -50,10 +50,6 @@ function sendEvent(event, new_detail = null){
 }
 
 async function locationHandler(location){
-  // TODO: This is a bandaid solution for users not 
-  // getting their information after logging in with OAuth.
-  if(window.location.pathname == "/"){ pullUser(); }
-
   const template = parseLocation(location || window.location.pathname);
   
   await fetch(`/templates/${template}.html`).then(async(response) =>{
@@ -79,10 +75,8 @@ async function locationHandler(location){
       }
 
       target_element.value = template;
-
     }
   );
 }
 
-window.addEventListener("load", () => { locationHandler(); })
 window.addEventListener("popstate", () => { locationHandler(); })

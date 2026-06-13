@@ -9,6 +9,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   await updateCurrentUser();
   await dbStart();
   await updateLayout();
+  await locationHandler();
 });
 // Current user will always either be the session's user or a local user.
 async function updateCurrentUser(){
