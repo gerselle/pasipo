@@ -1,7 +1,6 @@
 services:
   postgres:
     image: postgres:16
-    container_name: postgres
     environment:
       POSTGRES_USER: ${POSTGRES_USER}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
@@ -17,6 +16,9 @@ services:
       timeout: 5s
       retries: 5
   typesense:
+    networks:
+        - proxy
+        - default
     image: typesense/typesense:0.25.2
     restart: on-failure
     ports:
@@ -29,7 +31,11 @@ services:
       interval: 5s
       timeout: 5s
       retries: 5
-  server:
+  core:
+    stop_grace_period: 1s
+    networks:
+        - proxy
+        - default
     build: .
     ports:
       - ${SERVER_PORT:-45426}:${SERVER_PORT:-45426}
@@ -39,7 +45,11 @@ services:
         condition: service_healthy
       typesense:
         condition: service_healthy
-
+        
 volumes:
   postgres_data:
   typesense_data:
+
+networks:
+  proxy:
+#    external: true

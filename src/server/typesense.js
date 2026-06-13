@@ -3,6 +3,7 @@ const dotenv = require('dotenv');
 dotenv.config();
 
 let CLIENT;
+let CLIENT_KEY;
 
 async function initialize(){
   CLIENT = new typesense.Client({
@@ -30,6 +31,13 @@ async function initialize(){
 
   // If collection exists, error will always occur, makes sure to always catch it
   try{await CLIENT.collections().create(schema);}catch(error){{}}
+
+  // Generate a client key to provide to the frontend, with permissions to search the albums collection
+  CLIENT_KEY = await CLIENT.keys().create({
+    'description': 'Client-side look-ahead search key',
+    'actions': ['documents:search'],
+    'collections': ['albums']
+  })
 }
 
 initialize()
@@ -78,9 +86,10 @@ async function refreshAlbums(refreshed_albums){
   }
 }
 
-exports.addAlbum = addAlbum;
-exports.query = query;
+function getClientKey(){
+  return CLIENT_KEY.value;
+}
 
 module.exports = {
-  addAlbum, refreshAlbums, query
+  addAlbum, refreshAlbums, query, getClientKey
 };

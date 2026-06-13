@@ -337,11 +337,10 @@ app.get("/*", (req, res) => {
     default:
       let index = fs.readFileSync(path.join(CLIENT_DIR, "index.html"), 'utf8');
       index = index.replace('{{SERVER_ADDRESS}}', process.env.SERVER_ADDRESS);
-      index = index.replace('{{TS_KEY}}', process.env.TYPESENSE_CLIENT_KEY);
+      index = index.replace('{{TS_KEY}}', typesense.getClientKey());
       index = index.replace('{{TS_URL}}', process.env.TYPESENSE_PUBLIC_URL);
       res.send(index);
   }
 });
 
-const port = process.env.SERVER_PORT;
-app.listen(port, "0.0.0.0", () => console.log(`Listening at http://${process.env.SERVER_IP}:${port}.`));
+app.listen(process.env.SERVER_PORT, () => console.log(`Listening at ${process.env.SERVER_ADDRESS}:${process.env.SERVER_PORT}.`));
