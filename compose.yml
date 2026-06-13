@@ -27,10 +27,11 @@ services:
       - ${TYPESENSE_DATA:-typesense_data}:/data
     command: '--data-dir /data --api-key=${TYPESENSE_API_KEY} --enable-cors'
     healthcheck:
-      test: ["CMD-SHELL", "grep -q '1FAC' /proc/net/tcp"]
+      test: ["CMD-SHELL", "bash -c 'exec 3<>/dev/tcp/127.0.0.1/8108 && printf \"GET /health HTTP/1.1\\r\\nHost: localhost\\r\\nConnection: close\\r\\n\\r\\n\" >&3 && grep -q \"\\\"ok\\\":true\" <&3'"]
       interval: 5s
       timeout: 5s
       retries: 5
+      start_period: 1s
   core:
     stop_grace_period: 1s
     networks:
