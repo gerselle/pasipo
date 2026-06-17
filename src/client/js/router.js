@@ -1,6 +1,6 @@
 document.addEventListener("click", (e) => {
   const target = e.target;
-  if(!target.matches("a .internal")){ return }
+  if(!target.matches("a.internal")){ return }
   e.preventDefault();
   route(e);
 });
@@ -32,7 +32,7 @@ function parseLocation(location){
     default: return 404;
   }
 
-  // A specific section other than the homepage or a date (ex: pasipo.app/login)
+  // A specific section other than the homepage or a date (ex: example.com/login)
   const sections = [
     "login",
     "signup"

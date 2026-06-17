@@ -120,8 +120,9 @@ function dayListeners(){
   // Handler for clicking on calendar dates
   docId("calendar").addEventListener("click", async function (event){
     const day = event.target.closest("div.day");
-    if(day && day.getAttribute("date")){;
-      SELECTED_DATE =  day.getAttribute("date");
+    const date = day?.getAttribute("date");
+    if(date){
+      SELECTED_DATE = date;
       SELECTED_ALBUM = await albumOfDate(SELECTED_DATE);
       toggleCalendar();
     }
@@ -409,7 +410,7 @@ async function presearchAlbum(){
     'drop_tokens_threshold': 0
   }
 
-  let query_result = await TS_CLIENT.collections('albums').documents().search(query).catch();
+  let query_result = await TS_CLIENT.collections('albums').documents().search(query).catch(error => {console.error("Search error:", error)});
 
   if(!query_result) return;
   PRESEARCH.albums = {};
@@ -419,7 +420,8 @@ async function presearchAlbum(){
     let album = hit.document;
     dbAccess("albums", album, "add");
     PRESEARCH.albums[album.id] = album;
-    results += `\t<li album_id=${album.id}>${album.name} by ${album.artists[0].name}</li>\n`
+    let artist_name = album.artists?.[0]?.name || "Unknown Artist";
+    results += `\t<li album_id=${album.id}>${album.name} by ${artist_name}</li>\n`
   });
 
   search_results.innerHTML = results;
@@ -436,6 +438,11 @@ async function searchAlbum(event = null) {
             result = await response.json();
             album = result.error ? {error: result.error} : result[0]; 
           });
+  }
+
+  if(!album){
+    displayMessage(docId("search"), "No album found.");
+    return; 
   }
 
   // Clear search bar
@@ -511,33 +518,29 @@ async function displayAlbum(album, rating){
   
     album_img.href = album.url;
     album_img.innerHTML = `<img src="${album.image}" alt="${album.name}">`;
-    
-    let artists = album.artists ? `<a href="${album.artists[0].url}">${album.artists[0].name}</a>` : "";
-    
-    for(let i = 1; i < album.artists.length; i++){
-      artists += `, <a href="${album.artists[i].url}">${album.artists[i].name}</a>`;
+
+    let artists = "No artists found";
+    if(album.artists?.length){
+      artists = album.artists.map((artist) => `<a href="${artist.url}">${artist.name}</a>`).join(", ");
     }
     album_artists.innerHTML = artists;
-  
+
     album_title.innerHTML = album.name;
     album_title.title = album.name;
     album_title.href = album.url;
 
-    let genres = capitalize(album.genres[0]) || "No genres";
-    for(let i = 1; i < 3; i++){
-      if(album.genres[i]){
-        genres += `, ${capitalize(album.genres[i])}`;
-      }
+    let genres =  "No genres found";
+    if(album.genres?.length){
+      genres = album.genres.slice(0, 3).map(capitalize).join(", "); 
     }
+    album_genres.innerHTML = genres;
 
     docId("rating_level").style.width = rating ? `${rating[0] * 10}%` : "0%";
-  
-    album_genres.innerHTML = genres;
   
     const tracklist = docId("album_tracklist");
     tracklist.innerHTML = "";
   
-    let tracklist_update = `<tr><th colspan="3" id="album_secret">${dayjs().format("MM/DD")} - ${album.name} - ${album.artists[0].name} - ${genres}</th></tr>\n\t\t`; 
+    let tracklist_update = `<tr><th colspan="3" id="album_secret">${dayjs(SELECTED_DATE).format("MM/DD")} - ${album.name} - ${album.artists[0].name} - ${genres}</th></tr>\n\t\t`; 
 
     album.track_list.forEach(track => {
       const track_index = album.track_list.indexOf(track);

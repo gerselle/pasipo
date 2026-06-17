@@ -229,7 +229,7 @@ async function signup(user_name, pass_word, pass_confirm){
 async function login(user_name, pass_word){ 
     user_name = user_name.toLowerCase();
     const users = await query("SELECT * FROM users WHERE user_name = $1", [user_name]);
-    if(!users.rows || !users.rows[0]) { return {error: `User ${user_name} not found.`, error_type:"user"} };
+    if(!users?.rows[0]) { return {error: `User ${user_name} not found.`, error_type:"user"} };
 
     const user = users.rows[0];
 

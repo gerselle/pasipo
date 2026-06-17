@@ -20,7 +20,7 @@ const sessionStore = require("connect-pg-simple")(session);
 const CLIENT_DIR = path.join(__dirname, "../client");
 
 const app = express();
-app.use(express.static(CLIENT_DIR));
+app.use(express.static(CLIENT_DIR, { index: false }));
 app.use(cors());
 app.use(express.json());
 
@@ -61,14 +61,14 @@ async function sessionUser(session){
 }
 
 async function refreshUser(session){
-  if(!session || !session.user){ return null };
+  if(!session?.user){ return null };
   const refreshed_user = await postgres.refreshUser(session.user.user_id);
   session.user = refreshed_user.error ? null : refreshed_user;
   return session.user;
 }
 
 app.get("/token/:service", async function(req, res){
-  if(!req.session || !req.session.user){
+  if(!req.session?.user){
     res.send({error: "No user to check for token."}); return;
   }
 
@@ -84,7 +84,7 @@ app.get("/token/:service", async function(req, res){
 });
 
 async function refreshToken(user, set_service = null){
-  if(!user || !user.tokens){ return { error: `No user tokens found for token refresh.` }; }
+  if(!user?.tokens){ return { error: `No user tokens found for token refresh.` }; }
 
   const service = set_service || user.current_service;
 
@@ -343,4 +343,4 @@ app.get("/*", (req, res) => {
   }
 });
 
-app.listen(process.env.SERVER_PORT, () => console.log(`Listening at ${process.env.SERVER_ADDRESS}:${process.env.SERVER_PORT}.`));
+app.listen(process.env.SERVER_PORT, () => console.log(`Listening at ${process.env.SERVER_ADDRESS}.`));
