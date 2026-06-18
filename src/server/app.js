@@ -214,6 +214,11 @@ app.post("/oauth", async function(req, res){
 });
 
 app.get("/callback", async function(req, res){
+  if(!req.query.code || !req.query.state){
+    res.send({error: "Invalid callback parameters."});
+    return;
+  }
+
   const split = req.query.state.split(":");
   const service = split[0];
   const user_id = split[1];
@@ -227,18 +232,22 @@ app.get("/callback", async function(req, res){
     case "spotify": user_info = await spotify.userInfo(code); break;
   }
 
-  user_info.service = service;
-  user_info.user_id = user_id;
+  if(!user_info.error){
+    user_info.service = service;
+    user_info.user_id = user_id;
 
-  switch(token_type){
-    case "acquire": await postgres.setToken(user_info); break;
-    case "login": 
-      const login = await postgres.loginToken(user_info);
-      if(login && !login.error){ req.session.user = login; }
-      break;
-    case "signup":
-      await postgres.signupToken(user_info);
-      break;
+    switch(token_type){
+      case "acquire": await postgres.setToken(user_info); break;
+      case "login": 
+        const login = await postgres.loginToken(user_info);
+        if(login && !login.error){ req.session.user = login; }
+        break;
+      case "signup":
+        await postgres.signupToken(user_info);
+        break;
+    }
+  }else{
+    console.log(`Error acquiring token for ${service}: ${user_info.error}`);
   }
 
   res.redirect(current_path);

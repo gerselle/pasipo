@@ -89,7 +89,7 @@ async function getArtists(album_artists){
     artist_info = {
       'id': spotify_artist.id,
       'name': spotify_artist.name,
-      'image': spotify_artist.images[0].url,
+      'image': spotify_artist.images[0]?.url,
       'url': spotify_artist.external_urls['spotify'],
       'genres': spotify_artist.genres
     };
@@ -167,7 +167,7 @@ async function albumSearch(album_query){
       let album_id = null;
 
       // Take id of first album with 6 or more tracks
-      for(let i = 0; i <= spotify_albums.items.length; i++){
+      for(let i = 0; i < spotify_albums.items.length; i++){
         if(spotify_albums.items[i].total_tracks > 5){
           album_id = spotify_albums.items[i].id;
           break;
@@ -197,12 +197,18 @@ async function albumSearch(album_query){
 
   const artists = await getArtists(album.artists);
   const track_list = await getTracklist(album.tracks);
-  const genres = album.genres.length > 0 ? album.genres : artists[0].genres
+  let genres = ["Unknown Genre"]; 
 
+  if(album.genres.length){
+    genres = album.genres;
+  }else if(artists[0]?.genres?.length){
+    genres = artists[0].genres;
+  }
+  
   search_result = { 
       'id': album.id,
       'name': album.name,
-      'image': album.images[0].url,
+      'image': album.images[0]?.url,
       'url': album.external_urls['spotify'],
       'artists': artists,
       'genres': genres,
@@ -230,7 +236,13 @@ async function getAlbums(album_ids){
     await Promise.all(result.albums.map(async(album) => {
       const artists = await getArtists(album.artists);
       const track_list = await getTracklist(album.tracks);
-      const genres = album.genres.length > 0 ? album.genres : artists[0].genres
+      let genres = ["Unknown Genre"]; 
+
+      if(album.genres.length){
+        genres = album.genres;
+      }else if(artists[0]?.genres?.length){
+        genres = artists[0].genres;
+      }
     
       album_info = { 
           'id': album.id,
@@ -279,7 +291,7 @@ async function userInfo(code){
 
   const token = await authorize(code);
 
-  if(!token){ return null; }
+  if(!token){ return {error: "Failed to obtain token."}; }
 
   const response =  await fetch(`https://api.spotify.com/v1/me`, { 
     method: 'GET',
@@ -289,14 +301,14 @@ async function userInfo(code){
 
   const info = await response.json();
 
-  if(info.error){ return null; }
+  if(info.error){ return {error: info.error}; }
 
-  const user_info ={
+    const user_info ={
     service_email: info.email,
     service_profile_name: info.display_name,
     service_url: info.external_urls["spotify"],
     service_id: info.id,
-    service_image: info.images[info.images.length - 1].url,
+    service_image: info.images.at(-1)?.url,
     service_token: token
   }
 

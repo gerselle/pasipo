@@ -487,7 +487,7 @@ async function updateAlbum(set_album = null){
     
     if(current_album){
       const albums_differ = current_album.id !== album.id;      
-      current_album_info.innerHTML = albums_differ ? `<span>Current Album: <i>${current_album.name}</i> by <b>${current_album.artists[0].name}</b></span>` : "";
+      current_album_info.innerHTML = albums_differ ? `<span>Current Album: <i>${current_album.name}</i> by <b>${current_album.artists[0]?.name}</b></span>` : "";
       current_album_info.title = albums_differ ? `${current_album.name} by ${current_album.artists[0].name}` : "";
       current_album_info.style.display = albums_differ ? "flex" : "none";
       options_panel.style.display = albums_differ ? "flex" : "none"; 
@@ -540,7 +540,7 @@ async function displayAlbum(album, rating){
     const tracklist = docId("album_tracklist");
     tracklist.innerHTML = "";
   
-    let tracklist_update = `<tr><th colspan="3" id="album_secret">${dayjs(SELECTED_DATE).format("MM/DD")} - ${album.name} - ${album.artists[0].name} - ${genres}</th></tr>\n\t\t`; 
+    let tracklist_update = `<tr><th colspan="3" id="album_secret">${dayjs(SELECTED_DATE).format("MM/DD")} - ${album.name} - ${album.artists[0]?.name} - ${genres}</th></tr>\n\t\t`; 
 
     album.track_list.forEach(track => {
       const track_index = album.track_list.indexOf(track);
