@@ -134,7 +134,7 @@ function holdElement(element, func, options = {}){
   // Keep a copy of the original element for reset
   const old_element = element.cloneNode(true);
 
-  const hold_secs = options.hold_secs || 1;
+  const hold_time = options.hold_time || 1000;
   const reset_event = options.reset_event || "pointerup";
   const background_color = options.background_color|| "red";
   const progress_color = options.progress_color || "darkred";
@@ -164,7 +164,17 @@ function holdElement(element, func, options = {}){
       element.replaceWith(old_element);
       func();
     }
-  }, hold_secs * 10);
+  }, hold_time / 100);
+}
+
+function tapElement(element, ){
+  if(!element){ return; }
+  
+  element.classList.add("tap");
+
+  element.addEventListener("animationend", () => {
+    element.classList.remove("tap");
+  }, { once: true });
 }
 
 document.addEventListener("pointerover", (event) => {
@@ -202,16 +212,16 @@ function displayMessage(target, message, options = {}){
 
     const offsetX = options.offsetX || 0;
     const offsetY = options.offsetY || 0;
-    const delay = options.delay || 3;
-    const duration = options.duration || 2;
+    const delay = options.delay || 3000;
+    const duration = options.duration || 2000;
 
     Object.assign(message_box.style, {
       left: `${element_pos.x + element_pos.width/2 - offsetX}px`,
       top: `${element_pos.y + element_pos.height/2 - offsetY}px`,
     });
 
-    message_box.style.animationDelay = `${delay}s`;
-    message_box.style.animationDuration = `${duration}s`;
+    message_box.style.animationDelay = `${delay}ms`;
+    message_box.style.animationDuration = `${duration}ms`;
     message_box.className = "no-select message";
     message_box.innerHTML = message;
     message_box.id = message;
@@ -220,7 +230,7 @@ function displayMessage(target, message, options = {}){
 
     setTimeout(() => {
       docId(message).remove();
-    }, (delay + duration) * 1000);
+    }, (delay + duration));
   }
 }
 

@@ -112,6 +112,16 @@ button{
   font-size: x-large;
 }
 
+.tap{
+  animation: tap 0.2s;
+}
+
+@keyframes tap {
+  0% { transform: scale(1); }
+  50% { transform: scale(0.9); }
+  100% { transform: scale(1); }
+}
+
 input{
   padding: 10px;
   height: 50px;

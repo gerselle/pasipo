@@ -377,6 +377,34 @@ async function sendAlbumDelete(album_delete){
   });
 }
 
+function sendAlbumCopy(album_copy){ 
+  let album_plain = `${dayjs(SELECTED_DATE).format("MM/DD")} - ${SELECTED_ALBUM.name} - ${SELECTED_ALBUM.artists?.[0]?.name || "Unknown Artist"} - ${capitalize(SELECTED_ALBUM.genres?.[0]) || "No Genre"}\n`;
+  SELECTED_ALBUM.track_list.forEach((track, index) => {
+    album_plain += `${index + 1}. ${track.name} (${dayjs(track.length).format("mm:ss")})\n`;
+  });
+
+  let album_html = 
+  `<tr><th colspan="3">${dayjs(SELECTED_DATE).format("MM/DD")} - ${SELECTED_ALBUM.name} - ${SELECTED_ALBUM.artists?.[0]?.name || "Unknown Artist"} - ${capitalize(SELECTED_ALBUM.genres?.[0]) || "No Genre"}</th></tr>\n\t\t`;
+  SELECTED_ALBUM.track_list.forEach((track, index) => {
+    album_html += ` <tr>
+        <td>${index + 1}</td>
+        <td>${track.name}</td>
+        <td></td>
+      </tr>\n\t\t`
+  });
+
+  const clipboard_data = [
+    new ClipboardItem({
+      "text/plain": new Blob([album_plain], {type: "text/plain"}),
+      "text/html": new Blob([`<table>${album_html}</table>`], {type: "text/html"})
+    })
+  ];
+
+  navigator.clipboard.write(clipboard_data);
+  
+  tapElement(album_copy);
+}
+
 // Search html
 const album_search = docId("search_button");
 const album_query = docId("search_bar");
@@ -476,6 +504,7 @@ async function updateAlbum(set_album = null){
   const date = docId("date");
   date.innerHTML = SELECTED_DATE;
   docId("album_delete").style.display = "none";
+  docId("album_copy").style.display = "none";
 
   let album;
   let rating;
@@ -494,6 +523,7 @@ async function updateAlbum(set_album = null){
     }
 
     docId("album_delete").style.display = album ? "flex" : "none";
+    docId("album_copy").style.display = album ? "flex" : "none";
     user_rating = album ? await dbAccess("user_ratings", album.id, "get") : null;
     rating = user_rating ? user_rating.rating : null;
   }else{
@@ -540,7 +570,7 @@ async function displayAlbum(album, rating){
     const tracklist = docId("album_tracklist");
     tracklist.innerHTML = "";
   
-    let tracklist_update = `<tr><th colspan="3" id="album_secret">${dayjs(SELECTED_DATE).format("MM/DD")} - ${album.name} - ${album.artists[0]?.name} - ${genres}</th></tr>\n\t\t`; 
+    let tracklist_update = ``; 
 
     album.track_list.forEach(track => {
       const track_index = album.track_list.indexOf(track);
